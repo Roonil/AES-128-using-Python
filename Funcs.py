@@ -57,59 +57,6 @@ def xorHexRows(row1, row2):
     return res
 
 
-def xorMultiRowCol(inValue1, inValue2):
-    res = [0]
-
-    for k, l in zip(inValue1, inValue2):
-        l = int(l, 0)
-        k = int(k, 0)
-        print(l, k)
-        if (k == 1):
-            res[0] ^= l
-
-        elif (k == 2):
-            if (format(l, '008b')[0] == '1'):
-                res[0] ^= l << 1 ^ int('11b', base=16)
-            else:
-                res[0] ^= l << 1
-
-        elif (k == 3):
-            if (format(l, '008b')[0] == '1'):
-                res[0] ^= ((l << 1) ^ int('11b', base=16)) ^ l
-            else:
-                res[0] ^= (l << 1) ^ l
-
-        elif(k == 9):
-            if (format(l, '008b')[0] == '1'):
-                res[0] ^= ((((l << 1) ^ int('11b', base=16)) << 1) << 1) ^ l
-            else:
-                res[0] ^= ((((l << 1)) << 1) << 1) ^ l
-
-        elif(k == 11):
-            if (format(l, '008b')[0] == '1'):
-                res[0] ^= (
-                    ((((l << 1) ^ int('11b', base=16)) << 1) ^ l) << 1) ^ l
-            else:
-                res[0] ^= (((((l << 1)) << 1) ^ l) << 1) ^ l
-
-        elif(k == 13):
-            if (format(l, '008b')[0] == '1'):
-                res[0] ^= (
-                    ((((l << 1) ^ int('11b', base=16)) ^ l) << 1) << 1) ^ l
-            else:
-                res[0] ^= (((((l << 1)) ^ l) << 1) << 1) ^ l
-
-        elif(k == 14):
-            if (format(l, '008b')[0] == '1'):
-                res[0] ^= (
-                    ((((l << 1) ^ int('11b', base=16)) ^ l) << 1) ^ l) << 1
-            else:
-                res[0] ^= (
-                    ((((l << 1)) ^ l) << 1) ^ l) << 1
-
-    return res[0]
-
-
 def lookupSBox(inValue):
     sBox = [
         0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
