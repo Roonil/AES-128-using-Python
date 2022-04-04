@@ -11,19 +11,7 @@ def subBytes(inValue):
 
 
 def prepEncValues(inValue, mode, iv):
-    if (mode == "CFB" or mode == "OFB" or mode == "CTR"):
-        inValue = strToHex(inValue)
-
-    else:
-        inValue = mtrx4x4(padHex(strToHex(inValue)))
-
-    if(mode == "CFB" or mode == "OFB" or mode == "CTR"):
-        res = []
-
-        for value in divInBlocks(inValue, 16):
-            res.append(value)
-
-        return res
+    inValue = mtrx4x4(padHex(strToHex(inValue)))
 
     if(iv and mode == "CBC"):
         res = []
@@ -82,64 +70,6 @@ def encCBC(inValue, iv, roundKeys, rounds):
     return res
 
 
-def encCFB(inValue, iv, roundKeys, rounds):
-    res = []
-    for block in inValue:
-        if res != []:
-            iv = (res[-4:])
-
-        encIV = encBlock(iv, roundKeys, rounds)
-        for blockIdx, block4x4 in enumerate(divInBlocks(block, 4)):
-            cipCFB = xorMatrices([block4x4], [encIV[blockIdx]])
-            res.extend(cipCFB)
-
-    return res
-
-
-def encOFB(inValue, iv, roundKeys, rounds):
-    res = []
-    oldIV = []
-
-    for block in inValue:
-        if oldIV != []:
-            iv = oldIV
-
-        encIV = encBlock(iv, roundKeys, rounds)
-
-        for blockIdx, block4x4 in enumerate(divInBlocks(block, 4)):
-            cipOFB = xorMatrices([block4x4], [encIV[blockIdx]])
-            res.extend(cipOFB)
-
-        oldIV = encIV
-
-    return res
-
-
-def increaseCTR(nonce):
-    nonce = int(prettify(nonce), 16)
-    nonce += 1
-    nonce = hex(nonce)[2:]
-
-    return mtrx4x4(divInBlocks(nonce, 2))
-
-
-def encCTR(inValue, nonce, roundKeys, rounds):
-    res = []
-    oldIV = []
-    for block in inValue:
-        if oldIV != []:
-            nonce = increaseCTR(nonce)
-
-        encIV = encBlock(nonce, roundKeys, rounds)
-
-        for blockIdx, block4x4 in enumerate(divInBlocks(block, 4)):
-            cipCTR = xorMatrices([block4x4], [encIV[blockIdx % 4]])
-            res.extend(cipCTR)
-
-        oldIV = encIV
-    return res
-
-
 def encrypt(inValue, secretKey, rounds, mode="ECB", iv=None):
     roundKeys = genRoundKeys(strToHex(secretKey), rounds)
     inValue = prepEncValues(inValue, mode, iv)
@@ -148,15 +78,6 @@ def encrypt(inValue, secretKey, rounds, mode="ECB", iv=None):
 
     if(mode == "CBC"):
         return encCBC(inValue, iv, roundKeys, rounds)
-
-    elif(mode == "CFB"):
-        return encCFB(inValue, iv, roundKeys, rounds)
-
-    elif (mode == "CTR"):
-        return encCTR(inValue, iv, roundKeys, rounds)
-
-    elif(mode == "OFB"):
-        return encOFB(inValue, iv, roundKeys, rounds)
 
     elif(mode == "ECB"):
         return encECB(inValue, roundKeys, rounds)

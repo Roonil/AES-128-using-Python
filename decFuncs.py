@@ -1,3 +1,4 @@
+from Creds import Plaintext
 from Funcs import *
 from encFuncs import *
 
@@ -5,7 +6,6 @@ from encFuncs import *
 def clearHexPadding(inValue):
     if (inValue[-2:] in ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f', '10']):
         return clearHexPadding(inValue[:-2])
-
     else:
         return inValue
 
@@ -106,40 +106,6 @@ def prepDecBytes(inValue):
     return divInBlocks(mtrx4x4(res), 4)
 
 
-def decOFB(inValue, roundKeys, iv, rounds):
-    res = []
-    res.append(encOFB(divInBlocks(nestedToSingleList(
-        inValue), 16), iv, roundKeys, rounds))
-    return res
-
-
-def decCFB(inValue, roundKeys, iv, rounds):
-    res = []
-    oldIV = []
-
-    for block in inValue:
-        if oldIV != []:
-            iv = oldIV[-4:]
-
-        encIV = encBlock(iv, roundKeys, rounds)
-
-        for blockIdx, block4x4 in enumerate(block):
-            Plaintxt = xorMatrices([block4x4], [encIV[blockIdx]])
-            oldIV.append(block4x4)
-
-            res.extend(Plaintxt)
-
-    return res
-
-
-def decCTR(inValue, roundKeys, iv, rounds):
-    res = []
-    res.append(encCTR(divInBlocks(nestedToSingleList(
-        inValue), 16), iv, roundKeys, rounds))
-
-    return res
-
-
 def decCBC(inValue, roundKeys, iv, rounds):
     res = []
     for block in inValue:
@@ -167,19 +133,10 @@ def decrypt(inValue, secretKey, rounds, mode="ECB", iv=None):
     inValue = prepDecBytes(inValue)
     roundKeys = genRoundKeys(strToHex(secretKey), rounds)
 
-    if(mode == "CFB"):
-        res.append(decCFB(inValue, roundKeys, iv, rounds))
-
-    elif(mode == "OFB"):
-        res.append(decOFB(inValue, roundKeys, iv, rounds))
-
-    elif(mode == "CTR"):
-        res.append(decCTR(inValue, roundKeys, iv, rounds))
-
-    elif(mode == "CBC"):
+    if mode == "CBC":
         res.append(decCBC(inValue, roundKeys, iv, rounds))
 
-    elif(mode == "ECB"):
+    elif mode == "ECB":
         res.append(decECB(inValue, roundKeys, rounds))
 
     return res
