@@ -1,4 +1,3 @@
-from Creds import Plaintext
 from Funcs import *
 from encFuncs import *
 
