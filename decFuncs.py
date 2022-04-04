@@ -61,8 +61,8 @@ def invSubBytes(inValue):
     return transposeMtrx(mtrx4x4(invSubbedBytes))
 
 
-def decRound(inValue, roundKeys, rounds):
-    for i in range(rounds-1, 0, -1):
+def decRound(inValue, roundKeys):
+    for i in range(len(roundKeys)-2, 0, -1):
         inValue = transposeMtrx(mixCols(mixCols(mixCols(
             addRoundKey(inValue, mtrx4x4(roundKeys[i]))))))
         inValue = [rotRowLeft(inValue[j], -1*j) for j in range(4)]
@@ -75,9 +75,9 @@ def finalDecRound(inValue, key):
     return(addRoundKey((inValue), mtrx4x4((key))))
 
 
-def decBlock(block, roundKeys, rounds):
+def decBlock(block, roundKeys):
     return finalDecRound(decRound(initDecRound(
-        block, roundKeys[rounds]), roundKeys, rounds), roundKeys[0])
+        block, roundKeys[-1]), roundKeys), roundKeys[0])
 
 
 def prepDecBytes(inValue):
@@ -89,10 +89,10 @@ def prepDecBytes(inValue):
     return divInBlocks(mtrx4x4(res), 4)
 
 
-def decCBC(inValue, roundKeys, iv, rounds):
+def decCBC(inValue, roundKeys, iv):
     res = []
     for block in inValue:
-        plainText = decBlock(block, roundKeys, rounds)
+        plainText = decBlock(block, roundKeys)
         plainText = xorMatrices(plainText, iv)
         iv = block
         res.append(plainText)
@@ -100,10 +100,10 @@ def decCBC(inValue, roundKeys, iv, rounds):
     return res
 
 
-def decECB(inValue, roundKeys, rounds):
+def decECB(inValue, roundKeys):
     res = []
     for block in inValue:
-        res.append(decBlock(block, roundKeys, rounds))
+        res.append(decBlock(block, roundKeys))
 
     return res
 
@@ -117,9 +117,9 @@ def decrypt(inValue, secretKey, rounds, mode="ECB", iv=None):
     roundKeys = genRoundKeys(strToHex(secretKey), rounds)
 
     if mode == "CBC":
-        res.append(decCBC(inValue, roundKeys, iv, rounds))
+        res.append(decCBC(inValue, roundKeys, iv))
 
     elif mode == "ECB":
-        res.append(decECB(inValue, roundKeys, rounds))
+        res.append(decECB(inValue, roundKeys))
 
     return res

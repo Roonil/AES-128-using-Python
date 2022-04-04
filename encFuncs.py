@@ -44,27 +44,27 @@ def finalEncRound(inValue, key):
     return addRoundKey(shiftRows(subBytes(inValue)), mtrx4x4(key))
 
 
-def encBlock(block, roundKeys, rounds):
+def encBlock(block, roundKeys):
     return finalEncRound(encRounds(initEncRound(
-        block, roundKeys[0]), roundKeys), roundKeys[rounds])
+        block, roundKeys[0]), roundKeys), roundKeys[-1])
 
 
-def encECB(inValue, roundkeys, rounds):
+def encECB(inValue, roundkeys):
     res = []
     for block in inValue:
-        res.append(encBlock(block, roundkeys, rounds))
+        res.append(encBlock(block, roundkeys))
 
     return res
 
 
-def encCBC(inValue, iv, roundKeys, rounds):
+def encCBC(inValue, iv, roundKeys):
     res = []
     cipherText = ""
     for block in inValue:
         if (iv and cipherText != ""):
             block = xorMatrices(block, cipherText)
 
-        cipherText = encBlock(block, roundKeys, rounds)
+        cipherText = encBlock(block, roundKeys)
         res.append(cipherText)
 
     return res
@@ -77,7 +77,7 @@ def encrypt(inValue, secretKey, rounds, mode="ECB", iv=None):
     iv = mtrx4x4(strToHex(iv)) if iv else None
 
     if(mode == "CBC"):
-        return encCBC(inValue, iv, roundKeys, rounds)
+        return encCBC(inValue, iv, roundKeys)
 
     elif(mode == "ECB"):
-        return encECB(inValue, roundKeys, rounds)
+        return encECB(inValue, roundKeys)
