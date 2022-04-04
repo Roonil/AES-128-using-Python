@@ -56,39 +56,39 @@ def finalEncRound(inValue, key):
     return addRoundKey(shiftRows(subBytes(inValue)), mtrx4x4(key))
 
 
-def encBlock(block, roundKeys, rounds):
+def encBlock(block, roundKeys):
     return finalEncRound(encRounds(initEncRound(
-        block, roundKeys[0]), roundKeys), roundKeys[rounds])
+        block, roundKeys[0]), roundKeys), roundKeys[-1])
 
 
-def encECB(inValue, roundkeys, rounds):
+def encECB(inValue, roundkeys):
     res = []
     for block in inValue:
-        res.append(encBlock(block, roundkeys, rounds))
+        res.append(encBlock(block, roundkeys))
 
     return res
 
 
-def encCBC(inValue, iv, roundKeys, rounds):
+def encCBC(inValue, iv, roundKeys):
     res = []
     cipherText = ""
     for block in inValue:
         if (iv and cipherText != ""):
             block = xorMatrices(block, cipherText)
 
-        cipherText = encBlock(block, roundKeys, rounds)
+        cipherText = encBlock(block, roundKeys)
         res.append(cipherText)
 
     return res
 
 
-def encCFB(inValue, iv, roundKeys, rounds):
+def encCFB(inValue, iv, roundKeys):
     res = []
     for block in inValue:
         if res != []:
             iv = (res[-4:])
 
-        encIV = encBlock(iv, roundKeys, rounds)
+        encIV = encBlock(iv, roundKeys)
         for blockIdx, block4x4 in enumerate(divInBlocks(block, 4)):
             cipCFB = xorMatrices([block4x4], [encIV[blockIdx]])
             res.extend(cipCFB)
@@ -96,7 +96,7 @@ def encCFB(inValue, iv, roundKeys, rounds):
     return res
 
 
-def encOFB(inValue, iv, roundKeys, rounds):
+def encOFB(inValue, iv, roundKeys):
     res = []
     oldIV = []
 
@@ -104,7 +104,7 @@ def encOFB(inValue, iv, roundKeys, rounds):
         if oldIV != []:
             iv = oldIV
 
-        encIV = encBlock(iv, roundKeys, rounds)
+        encIV = encBlock(iv, roundKeys)
 
         for blockIdx, block4x4 in enumerate(divInBlocks(block, 4)):
             cipOFB = xorMatrices([block4x4], [encIV[blockIdx]])
@@ -123,14 +123,14 @@ def increaseCTR(nonce):
     return mtrx4x4(divInBlocks(nonce, 2))
 
 
-def encCTR(inValue, nonce, roundKeys, rounds):
+def encCTR(inValue, nonce, roundKeys):
     res = []
     oldIV = []
     for block in inValue:
         if oldIV != []:
             nonce = increaseCTR(nonce)
 
-        encIV = encBlock(nonce, roundKeys, rounds)
+        encIV = encBlock(nonce, roundKeys)
 
         for blockIdx, block4x4 in enumerate(divInBlocks(block, 4)):
             cipCTR = xorMatrices([block4x4], [encIV[blockIdx % 4]])
@@ -147,16 +147,16 @@ def encrypt(inValue, secretKey, rounds, mode="ECB", iv=None):
     iv = mtrx4x4(strToHex(iv)) if iv else None
 
     if(mode == "CBC"):
-        return encCBC(inValue, iv, roundKeys, rounds)
+        return encCBC(inValue, iv, roundKeys)
 
     elif(mode == "CFB"):
-        return encCFB(inValue, iv, roundKeys, rounds)
+        return encCFB(inValue, iv, roundKeys)
 
     elif (mode == "CTR"):
-        return encCTR(inValue, iv, roundKeys, rounds)
+        return encCTR(inValue, iv, roundKeys)
 
     elif(mode == "OFB"):
-        return encOFB(inValue, iv, roundKeys, rounds)
+        return encOFB(inValue, iv, roundKeys)
 
     elif(mode == "ECB"):
-        return encECB(inValue, roundKeys, rounds)
+        return encECB(inValue, roundKeys)
