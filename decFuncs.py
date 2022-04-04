@@ -53,23 +53,6 @@ def initDecRound(inValue, key):
     return(transposeMtrx(res))
 
 
-def invMixCols(inValue):
-    invMixColsMtrx = [
-        ['0x0e', '0x0b', '0x0d', '0x09'],
-        ['0x09', '0x0e', '0x0b', '0x0d'],
-        ['0x0d', '0x09', '0x0e', '0x0b'],
-        ['0x0b', '0x0d', '0x09', '0x0e']
-    ]
-
-    res = []
-
-    for i in range(4):
-        for j in range(4):
-            res.append(hex(xorMultiRowCol(invMixColsMtrx[i], inValue[j])))
-
-    return res
-
-
 def invSubBytes(inValue):
     invSubbedBytes = []
     for k in range(len(inValue)):
