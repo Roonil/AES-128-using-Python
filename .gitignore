@@ -3,18 +3,4 @@ __pycache__/decFuncs.cpython-39.pyc
 __pycache__/encFuncs.cpython-39.pyc
 __pycache__/Funcs.cpython-39.pyc
 __pycache__/invMixCols.cpython-39.pyc
-manimScene copy.py
-manimScene.py
-WORKING/Dec.py
-WORKING/decFuncs.py
-WORKING/Enc.py
-WORKING/encFuncs.py
-WORKING/Funcs.py
-misc/bitWiswMult.py
-misc/bitWiswMultWorking.py
-misc/for.py
-misc/ivTest.py
-misc/keySchedule.py
-misc/keyScheduleWorking.py
-misc/S,IS.py
-WORKING/Creds.py
+.vscode/settings.json
